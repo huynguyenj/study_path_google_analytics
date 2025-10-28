@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { envVariable } from '../environments/env.js'
+import { ApiError } from './error.custom.js'
 
 // Get current directory
 // const __filename = fileURLToPath(import.meta.url)
@@ -21,10 +22,17 @@ import { envVariable } from '../environments/env.js'
 const credentials = JSON.parse(envVariable.CREDENTIAL_KEY)
 
 // Create global GoogleAuth client
-export const GoogleAuthClient = new google.auth.GoogleAuth({
-  credentials,
-  scopes: ['https://www.googleapis.com/auth/analytics.readonly']
-})
+export const GoogleAuthClient = () => {
+  try {
+    return new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/analytics.readonly']
+    })
+  } catch (error) {
+    console.log(error)
+    throw new ApiError(500, 'Authentication to google fail')
+  }
+}
 
 // Create reusable AnalyticsData client
 export const AnalyticsData = google.analyticsdata('v1beta')
