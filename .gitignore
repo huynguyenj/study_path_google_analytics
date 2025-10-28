@@ -3,7 +3,6 @@
 dist
 node_modules
 analytics-key.json
-vercel.json
 .vscode/*
 !.vscode/extensions.json
 .idea
