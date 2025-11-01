@@ -36,4 +36,42 @@ Router.get('/v1/google-analytics/active-user/sessions/weekly', async (req, res, 
    })
 })
 
+Router.get('/v1/google-analytics/new-user/yearly', async (req, res, next) => {
+   const googleAuth = await GoogleAuthClient().getClient()
+   const { year } = req.query
+   const response = await redisSetOrGet('/v1/google-analytics/new-user/yearly', async () => {
+      const response = await AnalyticsData.properties.runReport({
+         auth: googleAuth,
+         property: `properties/${envVariable.PROPERTY_ID}`,
+         requestBody: {
+            dateRanges: [{ startDate: `${year}-01-01`, endDate: `${year}-12-30` }],
+            dimensions: [{ name: 'month' }],
+            metrics: [{ name: 'newUsers' }]
+         }
+      })
+      return response.data
+   })
+
+   const rows = response.rows || []
+   const dataResponse = rows.map(row => ({
+      month: parseInt(row.dimensionValues[0].value),
+      newUsers: parseInt(row.metricValues[0].value)
+   }))
+
+   const fullDataMonth = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1
+      const exist = dataResponse.find(d => d.month === month)
+      return {
+         month,
+         newUser: exist ? exist.newUsers : 0
+      }
+   })
+
+   return res.status(200).json({
+      success: true,
+      message: 'Get analytics new users in year success',
+      data: fullDataMonth
+   })
+})
+
 export const RouteIndex = Router
