@@ -39,7 +39,7 @@ Router.get('/v1/google-analytics/active-user/sessions/weekly', async (req, res, 
 Router.get('/v1/google-analytics/new-user/yearly', async (req, res, next) => {
    const googleAuth = await GoogleAuthClient().getClient()
    const { year } = req.query
-   const response = await redisSetOrGet('/v1/google-analytics/new-user/yearly', async () => {
+   const response = await redisSetOrGet(`/v1/google-analytics/new-user/yearly?year=${year}`, async () => {
       const response = await AnalyticsData.properties.runReport({
          auth: googleAuth,
          property: `properties/${envVariable.PROPERTY_ID}`,
