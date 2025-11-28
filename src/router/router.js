@@ -13,7 +13,7 @@ Router.get('/v1/google-analytics/active-user/sessions/weekly', async (req, res, 
             requestBody: {
             dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
             dimensions: [{ name: 'date' }],
-            metrics: [{ name: 'sessions' }, { name: 'activeUsers' }]
+            metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'eventCount'}]
             }
          })
          return response.data
